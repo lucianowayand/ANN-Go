@@ -1,4 +1,4 @@
-package main
+package linearsystems
 
 import (
 	"fmt"
@@ -6,6 +6,10 @@ import (
 
 const SIZE1 = 3
 const SIZE2 = 3
+
+type Matrix struct {
+	Matrix [SIZE1][SIZE2]float64
+}
 
 func FormatMatrixResult(matrix [SIZE1][SIZE2]float64) {
 	for position := range matrix {
@@ -51,25 +55,3 @@ func AddLineElements(matrix [SIZE1][SIZE2]float64, line1 int, line2 int) [SIZE1]
 	return aux
 }
 
-func main() {
-	matrix := CreateMatrix(
-		9.0/7.0, 9.0/2.0, 8.0/9.0, 
-		-9.0/7.0, 5.0/3.0, -7.0/5.0, 
-		-9.0/7.0, 4.0/7.0, -8.0/7.0,
-	)
-
-	op1 := ChangeLines(matrix, 1, 2)
-
-	op2 := MultiplyLineElements(op1, 1, -3.0/2.0)
-
-	op3 := ChangeLines(op2, 2, 3)
-
-	op4 := MultiplyLineElements(op3, 1, -4.0/7.0)
-
-	op5 := AddLineElements(op4, 3, 1)
-
-	op6 := MultiplyLineElements(op5, 1, -7.0/4.0)
-
-	FormatMatrixResult(op6)
-
-}
