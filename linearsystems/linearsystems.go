@@ -4,7 +4,7 @@ import (
 	"fmt"
 )
 
-const SIZE1 = 3
+const SIZE1 = 4
 const SIZE2 = 3
 
 type Matrix struct {
@@ -20,12 +20,18 @@ func FormatMatrixResult(matrix [SIZE1][SIZE2]float64) {
 
 }
 
-func CreateMatrix(a float64, b float64, c float64, d float64, e float64, f float64, g float64, h float64, i float64) [SIZE1][SIZE2]float64 {
-	return [SIZE1][SIZE2]float64{
-		{a, b, c},
-		{d, e, f},
-		{g, h, i},
+func CreateMatrix(array [SIZE1 * SIZE2]float64) [SIZE1][SIZE2]float64 {
+	count := 0
+	var matrix [SIZE1][SIZE2]float64
+
+	for i := 0; i < SIZE1; i++ {
+		for j := 0; j < SIZE2; j++ {
+			matrix[i][j] = array[count]
+			count++
+		}
 	}
+
+	return matrix
 }
 
 func ChangeLines(matrix [SIZE1][SIZE2]float64, line1 int, line2 int) [SIZE1][SIZE2]float64 {
@@ -55,3 +61,12 @@ func AddLineElements(matrix [SIZE1][SIZE2]float64, line1 int, line2 int) [SIZE1]
 	return aux
 }
 
+func AddLineWeightedElements(matrix [SIZE1][SIZE2]float64, line1 int, line2 int, weight float64) [SIZE1][SIZE2]float64 {
+	aux := matrix
+
+	for position := range matrix {
+		aux[line1-1][position] = matrix[line1-1][position] + (matrix[line2-1][position] * weight)
+	}
+
+	return aux
+}
