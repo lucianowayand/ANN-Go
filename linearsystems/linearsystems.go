@@ -64,7 +64,7 @@ func AddLineElements(matrix [SIZE1][SIZE2]float64, line1 int, line2 int) [SIZE1]
 func AddLineWeightedElements(matrix [SIZE1][SIZE2]float64, line1 int, line2 int, weight float64) [SIZE1][SIZE2]float64 {
 	aux := matrix
 
-	for position := range matrix {
+	for position := range matrix[line1] {
 		aux[line1-1][position] = matrix[line1-1][position] + (matrix[line2-1][position] * weight)
 	}
 
