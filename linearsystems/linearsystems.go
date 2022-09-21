@@ -4,7 +4,7 @@ import (
 	"fmt"
 )
 
-const SIZE1 = 4
+const SIZE1 = 3
 const SIZE2 = 3
 
 type Matrix struct {
@@ -69,4 +69,26 @@ func AddLineWeightedElements(matrix [SIZE1][SIZE2]float64, line1 int, line2 int,
 	}
 
 	return aux
+}
+
+func Jacobi(matrix [SIZE1][SIZE2]float64, results [SIZE2]float64, estimation [SIZE2]float64, n int) {
+	for it := 0; it < n; it++ {
+		var aux [SIZE1]float64
+		for i := 0; i < SIZE2; i++ {
+			xi := results[i]
+			for j := 0; j < SIZE1; j++ {
+				if i != j {
+					xi -= matrix[i][j] * estimation[j]
+				}
+			}
+			xi /= matrix[i][i]
+			aux[i] = xi
+		}
+		fmt.Printf("X^(%d) -> ", it+1)
+		for k := 0; k < SIZE2; k++ {
+			estimation[k] = aux[k]
+			fmt.Printf("%.10f\t", estimation[k])
+		}
+		fmt.Println()
+	}
 }
