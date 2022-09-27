@@ -1,0 +1,15 @@
+package newton_test
+
+import (
+	"ann/zeroes"
+	"math"
+)
+
+func f(x float64) float64  { return math.Exp(5*x) - 2 }
+func df(x float64) float64 { return 5*math.Exp(5*x) }
+
+func main() {
+	iterations := [zeroes.SIZE]int {1, 25, 50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700}
+	x0 := -1.16440914
+	zeroes.Newton(f, df, x0, 700, iterations)
+}

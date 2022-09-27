@@ -1,23 +1,17 @@
 package main
 
 import (
-	"ann/linearsystems"
+	"ann/nonlinearsystems"
 )
 
-//func f(x float64) float64{ return x }
+func f(x float64, y float64) float64  { return x*x + y*y - 5 }
+func fx(x float64, y float64) float64 { return 2 * x }
+func fy(x float64, y float64) float64 { return 2 * y }
+
+func g(x float64, y float64) float64  { return x*x + x*y*y*y - 3 }
+func gx(x float64, y float64) float64 { return 2 * x + y*y*y }
+func gy(x float64, y float64) float64 { return 3 * x*y*y }
 
 func main() {
-	input := [linearsystems.SIZE1 * linearsystems.SIZE2]float64{
-		6.51, -0.77, 4.66,
-		3.46, 4.97, 0.44,
-		-2.26, -4.39, 7.73,
-	}
-
-	matrix := linearsystems.CreateMatrix(input)
-
-	results := [linearsystems.SIZE2]float64 {2.25, 0.65, 4.41}
-
-	estimation := [linearsystems.SIZE2]float64 {0.43, 0.39, 2.54}
-
-	linearsystems.Jacobi(matrix, results, estimation, 19)
+	nonlinearsystems.Newton(f, fx, fy, g, gx, gy, 5, -2.1985,0.598)
 }

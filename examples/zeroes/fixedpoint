@@ -1,0 +1,13 @@
+package fixed_point_example
+
+import (
+	"ann/zeroes"
+	"math"
+)
+
+func f(x float64) float64 { return ((3 * math.Pow(x, 4) + 2 * math.Pow(x, 2) + 3) / (4 * math.Pow(x, 3) + 4 * x - 1)) }
+
+func main() {
+	iterations := [zeroes.SIZE]int {1, 2, 3, 4, 5, 6, 7, 8 }
+	zeroes.FixedPoint(f,   1.01604, 100, iterations)
+}

@@ -4,8 +4,9 @@ import (
 	"fmt"
 )
 
-const SIZE1 = 3
-const SIZE2 = 3
+const SIZE = 12
+const SIZE1 = int(4.0)
+const SIZE2 = 4
 
 type Matrix struct {
 	Matrix [SIZE1][SIZE2]float64
@@ -71,24 +72,57 @@ func AddLineWeightedElements(matrix [SIZE1][SIZE2]float64, line1 int, line2 int,
 	return aux
 }
 
-func Jacobi(matrix [SIZE1][SIZE2]float64, results [SIZE2]float64, estimation [SIZE2]float64, n int) {
-	for it := 0; it < n; it++ {
-		var aux [SIZE1]float64
-		for i := 0; i < SIZE2; i++ {
-			xi := results[i]
-			for j := 0; j < SIZE1; j++ {
-				if i != j {
-					xi -= matrix[i][j] * estimation[j]
+func Jacobi(matrix [SIZE1][SIZE2]float64, results [SIZE1]float64, estimation [SIZE1]float64, n int, p [SIZE]int){
+	iteracao := 1
+    i2 := 0;
+
+    for k:=0; k<n;k++{
+        for i:=0; i<SIZE1; i++{
+            bi:= results[i];
+            for j:=0; j<SIZE2;j++{
+                if j != i {
+					bi -= matrix[i][j]*estimation[j];
+
 				}
+            }
+            bi/=matrix[i][i];
+            if iteracao == p[i2]{
+                fmt.Printf("%.16f,\n", bi)
+            }
+            estimation[i]=bi;
+        }
+        if iteracao == p[i2]{
+            i2++;
+        }
+        iteracao++;
+    }
+}
+
+func Gauss(matrix [SIZE1][SIZE2]float64){
+	for j:=0; j<SIZE2; j++{
+		for i:=j;j<SIZE2; i++{
+			if matrix[i][j] != 0{
+				if i!=j {
+					var temp float64
+					for k:=0; k<SIZE1; k++{
+						temp = matrix[i][k]
+						matrix[i][k] = matrix[j][k]
+						matrix[j][k] = temp
+					}
+				}
+				for m:=j+1; m<SIZE1; m++{
+					a := float64(-matrix[m][j])/float64(matrix[j][j])
+					for n:=j; n<SIZE1; n++{
+						matrix[m][n] += a * matrix[j][n]
+					}
+					FormatMatrixResult(matrix)
+					break
+				}
+			} else {
+				if (i==SIZE2-1){
+                    fmt.Println("Sistema não possui solução")
+                }
 			}
-			xi /= matrix[i][i]
-			aux[i] = xi
 		}
-		fmt.Printf("X^(%d) -> ", it+1)
-		for k := 0; k < SIZE2; k++ {
-			estimation[k] = aux[k]
-			fmt.Printf("%.10f\t", estimation[k])
-		}
-		fmt.Println()
 	}
 }
