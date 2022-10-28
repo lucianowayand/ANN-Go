@@ -67,6 +67,15 @@ func AddLineWeightedElements(matrix mat.Dense, lineMain int, lineRef int, weight
 
 }
 
+func LinearSolve(matrix mat.Dense, results mat.VecDense) mat.VecDense {
+	err := results.SolveVec(&matrix, &results)
+	if err != nil {
+		fmt.Printf("unexpected error from dense vector solve: %v", err)
+	}
+	return results
+	
+}
+
 func Jacobi(matrix mat.Dense, results mat.VecDense, estimation mat.VecDense, p mat.VecDense, n int) {
 	iteracao := 1
 	i2 := 0
@@ -120,8 +129,4 @@ func Gauss(matrix mat.Dense) {
 			}
 		}
 	}
-}
-
-func Solve(matrix mat.Dense){
-
 }
