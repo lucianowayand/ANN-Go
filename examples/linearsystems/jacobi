@@ -1,19 +1,22 @@
 package main
 
-import "ann/linearsystems"
+import (
+	"ann/linearsystems"
+
+	"gonum.org/v1/gonum/mat"
+)
 
 func main() {
-	iterations := [linearsystems.SIZE]int {1, 3, 4, 5, 6, 7, 11, 12, 16, 17, 23, 25 }
-	input := [linearsystems.SIZE1 * linearsystems.SIZE2]float64{
+	matrix := linearsystems.CreateMatrix([]float64{
 		-13.08, 2.96, -4.75, -3.47,
 		0.45, -3.53, 0.83, 0.35,
 		-0.95, 2.65, 6.39, 0.89,
 		-1.99, 1.28, 2.93, -8.1,
-	}
+	}, 4, 4)
 
-	matrix := linearsystems.CreateMatrix(input)
-	results := [linearsystems.SIZE2]float64 {4.61, -2.7, -0.71, 4.62}
-	estimation := [linearsystems.SIZE2]float64 {0.62, 1.22, -2.64, 4.24} 
+	results := mat.NewVecDense(4, []float64{4.61, -2.7, -0.71, 4.62})
+	estimation := mat.NewVecDense(4, []float64{0.62, 1.22, -2.64, 4.24})
+	iterations := mat.NewVecDense(12, []float64{1, 3, 4, 5, 6, 7, 11, 12, 16, 17, 23, 25})
 
-	linearsystems.Jacobi(matrix, results, estimation, iterations[linearsystems.SIZE-1], iterations)
+	linearsystems.Jacobi(*matrix, *results, *estimation, *iterations, int(iterations.AtVec(iterations.Len()-1)))
 }

@@ -10,10 +10,6 @@ const SIZE = 12
 const SIZE1 = int(4.0)
 const SIZE2 = 4
 
-type Matrix struct {
-	Matrix [SIZE1][SIZE2]float64
-}
-
 func FormatMatrixResult(matrix mat.Dense) {
 	fa := mat.Formatted(&matrix, mat.Prefix(""), mat.Squeeze())
 	fmt.Printf("%v\n", fa)
@@ -24,108 +20,104 @@ func CreateMatrix(array []float64, col int, row int) *mat.Dense {
 	return matrix
 }
 
-func getVectorFromRow(row mat.Vector) []float64{
+func getVectorFromRow(row mat.Vector) []float64 {
 	v := make([]float64, row.Len())
 	for i := 0; i < row.Len(); i++ {
-		v[i] = row.At(i,0)
+		v[i] = row.At(i, 0)
 	}
 	return v
 }
 
-func ChangeLines(matrix mat.Dense, line1 int, line2 int) mat.Dense {
-	firstLine := getVectorFromRow(matrix.RowView(line1-1))
-	secondLine := getVectorFromRow(matrix.RowView(line2-1))
+func ChangeLines(matrix mat.Dense, lineMain int, lineRef int) {
+	firstLine := getVectorFromRow(matrix.RowView(lineMain - 1))
+	secondLine := getVectorFromRow(matrix.RowView(lineRef - 1))
 
-	matrix.SetRow(line2-1, firstLine)
-	matrix.SetRow(line1-1, secondLine)
+	matrix.SetRow(lineRef-1, firstLine)
+	matrix.SetRow(lineMain-1, secondLine)
 
-	return matrix
 }
 
-func MultiplyLineElements(matrix mat.Dense, line int, constant float64) mat.Dense {
-	new_row := getVectorFromRow(matrix.RowView(line-1))
-	
-	for index, elements := range new_row{
-		new_row[index] = elements * constant
-	}
+func MultiplyLineElements(matrix mat.Dense, line int, constant float64) {
+	op := mat.VecDenseCopyOf(matrix.RowView(line - 1))
 
-	matrix.SetRow(line-1, new_row)
+	op.ScaleVec(constant, op)
 
-	return matrix
+	matrix.SetRow(line-1, getVectorFromRow(op))
+
 }
 
-func AddLineElements(matrix mat.Dense, line1 int, line2 int) mat.Dense {
-	firstLine := mat.VecDenseCopyOf(matrix.RowView(line1-1))
-	secondLine := mat.VecDenseCopyOf(matrix.RowView(line2-1))
+func AddLineElements(matrix mat.Dense, lineMain int, lineRef int) {
+	firstLine := mat.VecDenseCopyOf(matrix.RowView(lineMain - 1))
+	secondLine := mat.VecDenseCopyOf(matrix.RowView(lineRef - 1))
 
-	newRow := 
+	newRow := mat.NewVecDense(firstLine.Len(), nil)
+	newRow.AddVec(firstLine, secondLine)
 
-	matrix.SetRow(line-1, firstLine)
+	matrix.SetRow(lineMain-1, getVectorFromRow(newRow))
 
-	return matrix
 }
 
-func AddLineWeightedElements(matrix [SIZE1][SIZE2]float64, line1 int, line2 int, weight float64) [SIZE1][SIZE2]float64 {
-	aux := matrix
+func AddLineWeightedElements(matrix mat.Dense, lineMain int, lineRef int, weight float64) {
+	secondLine := mat.VecDenseCopyOf(matrix.RowView(lineRef - 1))
 
-	for position := range matrix[line1] {
-		aux[line1-1][position] = matrix[line1-1][position] + (matrix[line2-1][position] * weight)
-	}
+	secondLine.ScaleVec(weight, secondLine)
+	secondLine.AddVec(secondLine, matrix.RowView(lineMain-1))
 
-	return aux
+	matrix.SetRow(lineMain-1, getVectorFromRow(secondLine))
+
 }
 
-func Jacobi(matrix [SIZE1][SIZE2]float64, results [SIZE1]float64, estimation [SIZE1]float64, n int, p [SIZE]int){
+func Jacobi(matrix mat.Dense, results mat.VecDense, estimation mat.VecDense, p mat.VecDense, n int) {
 	iteracao := 1
-    i2 := 0;
+	i2 := 0
 
-    for k:=0; k<n;k++{
-        for i:=0; i<SIZE1; i++{
-            bi:= results[i];
-            for j:=0; j<SIZE2;j++{
-                if j != i {
-					bi -= matrix[i][j]*estimation[j];
+	for k := 0; k < n; k++ {
+		for i := 0; i < SIZE1; i++ {
+			bi := results.AtVec(i)
+			for j := 0; j < SIZE2; j++ {
+				if j != i {
+					bi -= matrix.At(i, j) * estimation.AtVec(j)
 
 				}
-            }
-            bi/=matrix[i][i];
-            if iteracao == p[i2]{
-                fmt.Printf("%.16f,\n", bi)
-            }
-            estimation[i]=bi;
-        }
-        if iteracao == p[i2]{
-            i2++;
-        }
-        iteracao++;
-    }
+			}
+			bi /= matrix.At(i, i)
+			if iteracao == int(p.AtVec(i2)) {
+				fmt.Printf("%.16f,\n", bi)
+			}
+			estimation.SetVec(i, bi)
+		}
+		if iteracao == int(p.AtVec(i2)) {
+			i2++
+		}
+		iteracao++
+	}
 }
 
-// func Gauss(matrix [SIZE1][SIZE2]float64){
-// 	for j:=0; j<SIZE2; j++{
-// 		for i:=j;j<SIZE2; i++{
-// 			if matrix[i][j] != 0{
-// 				if i!=j {
-// 					var temp float64
-// 					for k:=0; k<SIZE1; k++{
-// 						temp = matrix[i][k]
-// 						matrix[i][k] = matrix[j][k]
-// 						matrix[j][k] = temp
-// 					}
-// 				}
-// 				for m:=j+1; m<SIZE1; m++{
-// 					a := float64(-matrix[m][j])/float64(matrix[j][j])
-// 					for n:=j; n<SIZE1; n++{
-// 						matrix[m][n] += a * matrix[j][n]
-// 					}
-// 					FormatMatrixResult(matrix)
-// 					break
-// 				}
-// 			} else {
-// 				if (i==SIZE2-1){
-//                     fmt.Println("Sistema não possui solução")
-//                 }
-// 			}
-// 		}
-// 	}
-// }
+func Gauss(matrix mat.Dense) {
+	for j := 0; j < matrix.RawMatrix().Cols-1; j++ {
+		for i := j; j < matrix.RawMatrix().Cols-1; i++ {
+			if matrix.At(i, j) != 0 {
+				if i != j {
+					var temp float64
+					for k := 0; k < matrix.RawMatrix().Rows-1; k++ {
+						temp = matrix.At(i, k)
+						matrix.Set(i, k, matrix.At(j, k))
+						matrix.Set(j, k, temp)
+					}
+				}
+				for m := j + 1; m < matrix.RawMatrix().Rows-1; m++ {
+					a := float64(-matrix.At(m, j)) / float64(matrix.At(j, j))
+					for n := j; n < matrix.RawMatrix().Rows; n++ {
+						matrix.Set(m, n, (matrix.At(m, n) + (a * matrix.At(j, n))))
+					}
+					FormatMatrixResult(matrix)
+					break
+				}
+			} else {
+				if i == matrix.RawMatrix().Cols-1 {
+					fmt.Println("Sistema não possui solução")
+				}
+			}
+		}
+	}
+}
