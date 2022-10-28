@@ -121,3 +121,7 @@ func Gauss(matrix mat.Dense) {
 		}
 	}
 }
+
+func Solve(matrix mat.Dense){
+
+}
